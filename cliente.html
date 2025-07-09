@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cliente WebSocket</title>
+</head>
+<body>
+  <h2>Cliente conectado ao WebSocket</h2>
+  <input type="text" id="mensagem" placeholder="Escreva uma mensagem" />
+  <button onclick="enviar()">Enviar</button>
+  <div id="log" style="margin-top:20px; font-family: monospace;"></div>
+
+  <script>
+    const log = document.getElementById('log');
+    const socket = new WebSocket('ws://localhost:3000');
+
+    socket.onopen = () => log.innerHTML += '🟢 Conectado!<br>';
+    socket.onmessage = (event) => log.innerHTML += '📨 Mensagem: ' + event.data + '<br>';
+    socket.onclose = () => log.innerHTML += '🔴 Desconectado<br>';
+    socket.onerror = (e) => log.innerHTML += '⚠️ Erro: ' + e.message + '<br>';
+
+    function enviar() {
+      const mensagem = document.getElementById('mensagem').value;
+      socket.send(mensagem);
+      log.innerHTML += '📤 Enviado: ' + mensagem + '<br>';
+    }
+  </script>
+</body>
+</html>
