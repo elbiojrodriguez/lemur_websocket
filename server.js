@@ -13,7 +13,7 @@ wss.on("connection", (ws) => {
     const texto = msg.toString();
     console.log(`📨 Mensagem recebida: ${texto}`);
 
-    const [tipo, id] = texto.split(":");
+    const [tipo, id, payload] = texto.split(":");
 
     if (tipo === "owner") {
       donos[id] = ws;
@@ -27,6 +27,19 @@ wss.on("connection", (ws) => {
         console.log(`📤 Enviado para dono: visitante:${id}`);
       } else {
         console.log(`❌ Dono com ID ${id} não está conectado`);
+      }
+    }
+
+    if (tipo === "offer") {
+      const donoWs = donos[id];
+      const sdpEncoded = texto.split(":").slice(2).join(":"); // suporta SDP com ":" dentro
+      const sdp = Buffer.from(sdpEncoded, "base64").toString("utf-8");
+
+      if (donoWs && donoWs.readyState === WebSocket.OPEN) {
+        donoWs.send(`offer:${sdp}`);
+        console.log(`📤 Offer enviada ao dono: ${id}`);
+      } else {
+        console.log(`❌ Dono com ID ${id} não está conectado para receber a offer`);
       }
     }
   });
