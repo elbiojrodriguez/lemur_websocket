@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT;
 
 const wss = new WebSocket.Server({ port: PORT });
 console.log(`🚀 Servidor WebSocket ativo na porta ${PORT}`);
@@ -35,7 +35,7 @@ function limparConexao(ws) {
       conexoes[tipo][id] = conexoes[tipo][id].filter(conn => conn !== ws);
       if (conexoes[tipo][id].length === 0) {
         delete conexoes[tipo][id];
-        logEvento(`🔴 Removido ${tipo} ${id}`);
+        logEvento(`🔴 Removido ${tipo} ➜ ${id}`);
       }
     }
   }
@@ -57,12 +57,13 @@ wss.on("connection", (ws) => {
 
       logEvento(`📨 Mensagem recebida: ${tipo} ➜ ${id}`);
 
+      // Registro de dono ou visitante
       if (["owner", "visitante"].includes(tipo)) {
         registrarConexao(tipo, id, ws);
       }
 
+      // Roteamento da mensagem do visitante para dono
       if (tipo === "visitante") {
-        // O visitante quer enviar algo ao dono correspondente
         enviarParaDonos(id, {
           tipo: "visitante",
           id,
@@ -71,7 +72,7 @@ wss.on("connection", (ws) => {
         logEvento(`📤 Enviado para dono ➜ ${id}`);
       }
 
-      // Futuro: lidar com tipo "sensor", "audio", etc.
+      // Futuro: lidar com tipos como "camera", "sensor", "audio"
 
     } catch (e) {
       logEvento(`❌ Erro ao processar mensagem: ${e.message}`);
