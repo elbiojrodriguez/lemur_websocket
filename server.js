@@ -62,17 +62,27 @@ wss.on("connection", (ws) => {
         registrarConexao(tipo, id, ws);
       }
 
-      // Roteamento da mensagem do visitante para dono
+      // Visitante envia crachá → repassa para dono
       if (tipo === "visitante") {
         enviarParaDonos(id, {
           tipo: "visitante",
           id,
           conteudo: conteudo || "cracha solicitado"
         });
-        logEvento(`📤 Enviado para dono ➜ ${id}`);
+        logEvento(`📤 Visitante repassado ➜ ${id}`);
       }
 
-      // Futuro: lidar com tipos como "camera", "sensor", "audio"
+      // Câmera envia imagem → repassa para dono
+      if (tipo === "camera") {
+        enviarParaDonos(id, {
+          tipo: "camera",
+          id,
+          conteudo
+        });
+        logEvento(`📷 Imagem da câmera enviada ➜ ${id}`);
+      }
+
+      // Futuro: lidar com sensor, audio, comandos...
 
     } catch (e) {
       logEvento(`❌ Erro ao processar mensagem: ${e.message}`);
